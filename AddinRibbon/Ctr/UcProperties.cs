@@ -1,243 +1,164 @@
 ﻿using System;
-using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using System.Linq;
 using Autodesk.Navisworks.Api;
-using NavisworksApp = Autodesk.Navisworks.Api.Application;
+using App = Autodesk.Navisworks.Api.Application;
 
 namespace AddinRibbon.Ctr
 {
-    /// <summary>
-    /// Aula/Lesson 6
-    /// </summary>
     public partial class UcProperties : UserControl
     {
-
-        /// <summary>
-        /// Aula/Lesson 6
-        /// </summary>
         public UcProperties()
         {
             InitializeComponent();
 
             ListenSelection(null, null);
-            NavisworksApp.MainDocumentChanged += ListenSelection;
+            App.ActiveDocumentChanged += ListenSelection;
         }
 
-        /// <summary>
-        /// Aula/Lesson 3
-        /// </summary>
-        /// <param name="e"></param>
+        private void ListenSelection(object sender, EventArgs e)
+        {
+            App.ActiveDocument.CurrentSelection.Changed += GetProperties;
+        }
+
+        private void GetProperties(object sender, EventArgs e)
+        {
+            tbOut.Clear();
+
+            var result = new List<string>();
+
+            foreach (var item in App.ActiveDocument.CurrentSelection.SelectedItems)
+            {
+                result.Add(item.DisplayName);
+
+                foreach (var cat in item.PropertyCategories)
+                {
+                    result.Add(string.Concat(".     ", cat.DisplayName));
+
+                    foreach (var prop in cat.Properties)
+                    {
+                        result.Add(string.Concat(".     .     ", prop.DisplayName, "> ", GetPropertyValue(prop)));
+                    }
+                }
+
+                result.Add(Environment.NewLine);
+            }
+
+            tbOut.Text = string.Join(Environment.NewLine, result);
+        }
+
+        private string GetPropertyValue(DataProperty prop)
+        {
+            return prop.Value.IsDisplayString ? prop.Value.ToDisplayString() : prop.Value.ToString().Split(':')[1];
+        }
+
+        private void btFind_MouseUp(object sender, MouseEventArgs e)
+        {
+            var r = new List<ModelItem>();
+
+            foreach (var item in App.ActiveDocument.CurrentSelection.SelectedItems)
+            {
+                var cat = item.DescendantsAndSelf.Where(i => i.PropertyCategories.FindCategoryByDisplayName(tbCategoryName.Text) != null);
+
+                var pro = cat.Where(m => m.PropertyCategories.FindCategoryByDisplayName(tbCategoryName.Text).Properties.FindPropertyByDisplayName(tbPropertyName.Text) != null);
+
+                r.AddRange(pro.Where(m => GetPropertyValue(m.PropertyCategories.FindCategoryByDisplayName(tbCategoryName.Text).Properties.FindPropertyByDisplayName(tbPropertyName.Text)) == tbPropertyValue.Text));
+            }
+
+            App.ActiveDocument.CurrentSelection.Clear();
+            App.ActiveDocument.CurrentSelection.AddRange(r);
+        }
+
         protected override void OnParentChanged(EventArgs e)
         {
             base.OnParentChanged(e);
             Dock = DockStyle.Fill;
         }
 
-        /// <summary>
-        /// Aula/Lesson 6
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ListenSelection(object sender, EventArgs e)
+        private void tbCategoryName_TextChanged(object sender, EventArgs e)
         {
-            try
-            {
-                NavisworksApp.ActiveDocument.CurrentSelection.Changed += GetProperties;
-            }
-            catch (Exception)
-            {
-
-            }
 
         }
 
-        /// <summary>
-        /// Aula/Lesson 6
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void GetProperties(object sender, EventArgs e)
+        private void lbCategoryName_Click(object sender, EventArgs e)
         {
-
-            if (cbPause.Checked) return;
-
-            try
-            {
-                tbProp.Clear();
-
-                var lines = new List<string>();
-
-                foreach (var item in NavisworksApp.ActiveDocument.CurrentSelection.SelectedItems)
-                {
-                    lines.Add(item.DisplayName);
-
-                    foreach (var cat in item.PropertyCategories)
-                    {
-                        lines.Add(string.Concat(".   ", cat.DisplayName));
-
-                        foreach (var prop in cat.Properties)
-                        {
-                            lines.Add(string.Concat(".   .   ", prop.DisplayName, ": ", GetPropValue(prop)));
-                        }
-                    }
-
-                    lines.Add(Environment.NewLine);
-                }
-
-                tbProp.Text = string.Join(Environment.NewLine, lines);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Aula/Lesson 6
-        /// </summary>
-        private static string GetPropValue(DataProperty prop)
-        {
-
-            try
-            {
-                return prop.Value.IsDisplayString ? prop.Value.ToDisplayString() :
-                                                            prop.Value.ToString().Split(':')[1];
-            }
-            catch (Exception)
-            {
-                return "Prop Error";
-            }
 
         }
 
-        /// <summary>
-        /// Aula/Lesson 7
-        /// </summary>
-        private void btFind_MouseUp(object sender, MouseEventArgs e)
+        private void btFind_Click(object sender, EventArgs e)
         {
-
-            try
-            {
-                var result = new List<ModelItem>();
-
-                foreach (var item in NavisworksApp.ActiveDocument.CurrentSelection.SelectedItems)
-                {
-                    var cat = item.DescendantsAndSelf.Where(i => i.PropertyCategories.FindCategoryByDisplayName(tbCatName.Text) != null);
-
-                    var prop = cat.Where(m => m.PropertyCategories.FindCategoryByDisplayName(tbCatName.Text).
-                                            Properties.FindPropertyByDisplayName(tbPropName.Text) != null);
-
-                    result.AddRange(prop.Where(m => GetPropValue(m.PropertyCategories.FindCategoryByDisplayName(tbCatName.Text).
-                                            Properties.FindPropertyByDisplayName(tbPropName.Text)) == tbValueName.Text));
-
-                }
-
-                NavisworksApp.ActiveDocument.CurrentSelection.Clear();
-                NavisworksApp.ActiveDocument.CurrentSelection.AddRange(result);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
 
         }
 
-        /// <summary>
-        /// Aula/Lesson 8
-        /// </summary>
         private void btCreateSet_MouseUp(object sender, MouseEventArgs e)
         {
-            var ac = NavisworksApp.ActiveDocument;
+            var ac = App.ActiveDocument;
             var cs = ac.CurrentSelection;
-            var ss = ac.SelectionSets;
+            var se = ac.SelectionSets;
 
-            var fn = "Saved Sets";
-            var sn = string.Concat(DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff"));
+            var fn = "Selection Sets";
+            var sn = Guid.NewGuid().ToString();
 
             try
             {
-                var set = new SelectionSet(cs.SelectedItems)
-                {
-                    DisplayName = sn
-                };
-
-                var fi = ss.Value.IndexOfDisplayName(fn);
+                var fi = se.Value.IndexOfDisplayName(fn);
 
                 if (fi == -1)
                 {
-                    var sf = new FolderItem() { DisplayName = fn };
-                    sf.Children.Add(set);
-                    ss.AddCopy(sf);
-                }
-                else
-                {
-                    ss.AddCopy(set);
-
-                    fi = ss.Value.IndexOfDisplayName(fn);
-                    var fo = ss.Value[fi] as FolderItem;
-
-                    var si = ss.Value.IndexOfDisplayName(set.DisplayName);
-                    var se = ss.Value[si] as SavedItem;
-
-                    ss.Move(se.Parent, si, fo, 0);
+                    se.AddCopy(new FolderItem() { DisplayName = fn });
                 }
 
+                var set = new SelectionSet(cs.SelectedItems) { DisplayName = sn };
+                se.AddCopy(set);
+
+                var fo = se.Value[se.Value.IndexOfDisplayName(fn)] as FolderItem;
+                var ns = se.Value[se.Value.IndexOfDisplayName(fn)] as SavedItem;
+
+                se.Move(ns.Parent,se.Value.IndexOfDisplayName(sn), fo, 0);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show(ex.Message);
             }
         }
 
-        /// <summary>
-        /// Aula/Lesson 9
-        /// </summary>
         private void btCreateSearch_MouseUp(object sender, MouseEventArgs e)
         {
-            var ac = NavisworksApp.ActiveDocument;
+            var ac = App.ActiveDocument;
             var cs = ac.CurrentSelection;
-            var ss = ac.SelectionSets;
+            var se = ac.SelectionSets;
 
-            var fn = "Saved Search";
-            var sn = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff");
+            var fn = "Search Sets";
+            var sn = Guid.NewGuid().ToString();
 
             try
             {
-                var s = new Search();
-                s.Selection.SelectAll();
-                s.Locations = SearchLocations.DescendantsAndSelf;
-
-                var sc = SearchCondition.HasPropertyByDisplayName(tbCatName.Text, tbPropName.Text);
-                s.SearchConditions.Add(sc.EqualValue(VariantData.FromDisplayString(tbValueName.Text)));
-
-                var sSet = new SelectionSet(s)
-                {
-                    DisplayName = sn
-                };
-                ss.AddCopy(sSet);
-
-                var fi = ss.Value.IndexOfDisplayName(fn);
+                var fi = se.Value.IndexOfDisplayName(fn);
 
                 if (fi == -1)
                 {
-                    var sf = new FolderItem() { DisplayName = fn };
-                    ss.AddCopy(sf);
+                    se.AddCopy(new FolderItem() { DisplayName = fn });
                 }
 
-                fi = ss.Value.IndexOfDisplayName(fn);
-                var fo = ss.Value[fi] as FolderItem;
+                var s = new Search();
+                s.Locations = SearchLocations.DescendantsAndSelf;
+                s.Selection.SelectAll();
 
-                var si = ss.Value.IndexOfDisplayName(sn);
-                var se = ss.Value[si] as SavedItem;
+                var sc = SearchCondition.HasPropertyByDisplayName(tbCategoryName.Text, tbPropertyName.Text);
+                s.SearchConditions.Add(sc.EqualValue(VariantData.FromDisplayString(tbPropertyValue.Text)));
 
-                ss.Move(se.Parent, si, fo, 0);
+                var set = new SelectionSet(s) { DisplayName = sn };
+                
+                se.AddCopy(set);
+
+                var fo = se.Value[se.Value.IndexOfDisplayName(fn)] as FolderItem;
+                var ns = se.Value[se.Value.IndexOfDisplayName(fn)] as SavedItem;
+
+                se.Move(ns.Parent, se.Value.IndexOfDisplayName(sn), fo, 0);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show(ex.Message);
             }
         }
-
     }
 }

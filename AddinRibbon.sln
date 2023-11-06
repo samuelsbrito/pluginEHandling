@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddinRibbon", "AddinRibbon\AddinRibbon.csproj", "{C283A2CC-975C-4614-9D02-FF5EE83FA60C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddinRibbon", "AddinRibbon\AddinRibbon.csproj", "{4E8A8679-FBFA-4E69-9F3A-F18ABFC6E641}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,12 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C283A2CC-975C-4614-9D02-FF5EE83FA60C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C283A2CC-975C-4614-9D02-FF5EE83FA60C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C283A2CC-975C-4614-9D02-FF5EE83FA60C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C283A2CC-975C-4614-9D02-FF5EE83FA60C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E8A8679-FBFA-4E69-9F3A-F18ABFC6E641}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E8A8679-FBFA-4E69-9F3A-F18ABFC6E641}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E8A8679-FBFA-4E69-9F3A-F18ABFC6E641}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E8A8679-FBFA-4E69-9F3A-F18ABFC6E641}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1BF71589-6CF4-4155-A3A9-E1F15F091D7D}
 	EndGlobalSection
 EndGlobal

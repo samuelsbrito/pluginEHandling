@@ -1,27 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AddinRibbon.Ctr
 {
     public partial class UcUpdate : UserControl
     {
+        public Timer UpTimer = new Timer { Enabled = true, Interval = 1000};
 
-        /// <summary>
-        /// Aula/Lesson 5
-        /// </summary>
-        public Timer UpTimer = new Timer { Enabled = true, Interval = 1000 };
+        public List<FileInfo> ListInfo = new List<FileInfo>();
 
-        /// <summary>
-        /// Aula/Lesson 5
-        /// </summary>
-        public List<FileInfo> ListInfos = new List<FileInfo>();
-
-        /// <summary>
-        /// Aula/Lesson 5
-        /// </summary>
         public UcUpdate()
         {
             InitializeComponent();
@@ -32,23 +27,25 @@ namespace AddinRibbon.Ctr
             Autodesk.Navisworks.Api.Application.ActiveDocumentChanged += ApplicationOnActiveDocumentChanged;
         }
 
-        /// <summary>
-        /// Aula/Lesson 5
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="eventArgs"></param>
-        private void ApplicationOnActiveDocumentChanged(object sender, EventArgs eventArgs)
+        private void ApplicationOnActiveDocumentChanged(object sender, EventArgs e)
         {
-            ListInfos.Clear();
+            ListInfo.Clear();
         }
 
-        /// <summary>
-        /// Aula/Lesson 5
-        /// </summary>
-        private void UpTimerOnTick(object sender, EventArgs eventArgs)
+        //metodo executado em cada tick do timer
+        private void UpTimerOnTick(object sender, EventArgs e)
         {
-            if (cbPause.Checked) return;
-            if (Autodesk.Navisworks.Api.Application.ActiveDocument == null) return;
+            //update pausado
+            if (cbPause.Checked)
+            {
+                return;
+            }
+
+            //nenhum documento ativo
+            if (Autodesk.Navisworks.Api.Application.ActiveDocument == null)
+            {
+                return;
+            }
 
             var activeDocument = Autodesk.Navisworks.Api.Application.ActiveDocument;
 
@@ -56,7 +53,7 @@ namespace AddinRibbon.Ctr
             {
                 var currentInfo = new FileInfo(model.SourceFileName);
 
-                var lastInfo = ListInfos.FirstOrDefault(i => i.FullName == currentInfo.FullName);
+                var lastInfo = ListInfo.FirstOrDefault(i => i.FullName == currentInfo.FullName);
 
                 if (lastInfo != null)
                 {
@@ -66,29 +63,25 @@ namespace AddinRibbon.Ctr
                     {
                         btUpdate.Enabled = true;
 
-                        ListInfos.Remove(lastInfo);
-                        ListInfos.Add(currentInfo);
+                        ListInfo.Remove(lastInfo);
+                        ListInfo.Add(currentInfo);
 
                         tbLog.AppendText(string.Concat(currentInfo.Name, " was updated!", Environment.NewLine));
 
-                        if (cbUpdate.Checked)
+                        if (cbAutoUpdate.Checked)
                         {
                             UpdateModel();
                         }
                     }
-
                 }
                 else
                 {
-                    ListInfos.Add(currentInfo);
+                    ListInfo.Add(currentInfo);
                 }
             }
 
         }
 
-        /// <summary>
-        /// Aula/Lesson 5
-        /// </summary>
         private void UpdateModel()
         {
             Autodesk.Navisworks.Api.Application.ActiveDocument.UpdateFiles();
@@ -96,35 +89,40 @@ namespace AddinRibbon.Ctr
             btUpdate.Enabled = false;
         }
 
-        /// <summary>
-        /// Aula/Lesson 3
-        /// </summary>
-        /// <param name="e"></param>
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void UcUpdate_Load(object sender, EventArgs e)
+        {
+
+        }
+
         protected override void OnParentChanged(EventArgs e)
         {
             base.OnParentChanged(e);
             Dock = DockStyle.Fill;
         }
 
-        /// <summary>
-        /// Aula/Lesson 5
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void btUpdate_MouseUp(object sender, MouseEventArgs e)
         {
             UpdateModel();
         }
 
-        /// <summary>
-        /// Aula/Lesson 5
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void btClear_MouseUp(object sender, MouseEventArgs e)
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btClearLog_MouseUp(object sender, MouseEventArgs e)
         {
             tbLog.Clear();
         }
-
     }
 }

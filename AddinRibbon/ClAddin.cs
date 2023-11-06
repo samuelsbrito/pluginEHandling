@@ -5,70 +5,55 @@ using Autodesk.Navisworks.Api.Plugins;
 
 namespace AddinRibbon
 {
-
-    /// <summary>
-    /// Aula/Lesson 3
-    /// </summary>
-    [Plugin("AddinRibbon", "CONN", DisplayName = "AddinRibbon")]
+    [Plugin("EHandling", "VeRLab", DisplayName = "EHandling")]
     [RibbonLayout("AddinRibbon.xaml")]
-    [RibbonTab("ID_CustomTab_1", DisplayName = "CONNESSIONI")]
-    [Command("ID_Button_1", Icon = "1_16.png", LargeIcon = "1_32.png", ToolTip = "Monitore a atualização dos links do modelo")]
+    [RibbonTab("ID_EHandling_tab", DisplayName = "EHandling")]
+    [Command("ID_Botao_Equipamentos", Icon = "1_16.png", LargeIcon = "1_32.png", DisplayName = "Equipamentos", ToolTip = "Abre a interface com comandos customizados.")]
+
     public class ClAddin : CommandHandlerPlugin
     {
         public override int ExecuteCommand(string name, params string[] parameters)
         {
-
             switch (name)
             {
-                case "ID_Button_1":
-
+                case "ID_Botao_Equipamentos":
                     if (!Autodesk.Navisworks.Api.Application.IsAutomated)
                     {
-                        var pluginRecord = Autodesk.Navisworks.Api.Application.Plugins.FindPlugin("ClDockPanelUpdate.CONN");
+                        var pluginRecord = Autodesk.Navisworks.Api.Application.Plugins.FindPlugin("ClDockPanelUpdate.VeRLab");
 
                         if (pluginRecord is DockPanePluginRecord && pluginRecord.IsEnabled)
                         {
-                            var docPanel = (DockPanePlugin)(pluginRecord.LoadedPlugin ?? pluginRecord.LoadPlugin());
+                            var docPanel = (DockPanePlugin) (pluginRecord.LoadedPlugin ?? pluginRecord.LoadPlugin());
                             docPanel.ActivatePane();
                         }
                     }
-
                     break;
             }
 
             return 0;
         }
     }
-
 }
 
 namespace AddinDockPanel
 {
-
-    /// <summary>
-    /// Aula/Lesson 4
-    /// </summary>
-    [Plugin("ClDockPanelUpdate", "CONN", DisplayName = "Conn Tools")]
+    [Plugin("ClDockPanelUpdate", "VeRLab", DisplayName = "EHandling")]
     [DockPanePlugin(200, 400, AutoScroll = true, MinimumHeight = 100, MinimumWidth = 200)]
     public class ClDockPanelUpdate : DockPanePlugin
     {
         public override Control CreateControlPane()
         {
-            //Create a tabControl to store more user controls (Aula/Lesson 6)
             var tc = new TabControl();
-            tc.ParentChanged += SetDockStile;
+            tc.ParentChanged += SetDockStyle;
 
-            //Store UcUpdate in the TabControl (Aula/Lesson 6)
             var tp1 = new TabPage("Auto Update");
             tp1.Controls.Add(new UcUpdate());
             tc.TabPages.Add(tp1);
 
-            //Store UcUpdate in the TabControl (Aula/Lesson 6)
-            var tp2 = new TabPage("Out Properties");
+            var tp2 = new TabPage("Properties");
             tp2.Controls.Add(new UcProperties());
             tc.TabPages.Add(tp2);
 
-            //Store UcUpdate in the TabControl (Aula/Lesson 6)
             var tp3 = new TabPage("Tools");
             tp3.Controls.Add(new UcTools());
             tc.TabPages.Add(tp3);
@@ -76,10 +61,7 @@ namespace AddinDockPanel
             return tc;
         }
 
-        /// <summary>
-        /// Aula/Lesson 6
-        /// </summary>
-        private void SetDockStile(object sender, EventArgs e)
+        private void SetDockStyle(object sender, EventArgs e)
         {
             try
             {
@@ -88,7 +70,7 @@ namespace AddinDockPanel
             }
             catch (Exception)
             {
-                
+
             }
         }
 
@@ -105,5 +87,4 @@ namespace AddinDockPanel
             }
         }
     }
-
 }
